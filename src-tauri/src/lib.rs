@@ -4,8 +4,16 @@ mod server;
 
 use std::sync::Mutex;
 use tauri::State;
+use warp::{Filter, Buf};
+use futures::StreamExt;
+use tokio::io::AsyncWriteExt;
 
-struct ServerState(Mutex<Option<tokio::task::JoinHandle>()>);
+#[derive(Debug)]
+struct CustomError(#[allow(dead_code)] String);
+
+impl warp::reject::Reject for CustomError {}
+
+struct ServerState(Mutex<Option<tokio::task::JoinHandle<()>>>);
 
 #[tauri::command]
 async fn get_local_ip() -> Result<String, String> {
@@ -13,7 +21,7 @@ async fn get_local_ip() -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn start_server(state: State<ServerState>) -> Result<serde_json::Value, String> {
+async fn start_server(state: State<'_, ServerState>) -> Result<serde_json::Value, String> {
     let port = network::get_free_port();
     let upload_dir = server::get_upload_dir();
     
@@ -61,18 +69,13 @@ async fn start_server(state: State<ServerState>) -> Result<serde_json::Value, St
 }
 
 async fn handle_upload(
-    form: warp::multipart::FormData,
+    mut form: warp::multipart::FormData,
     upload_dir: std::path::PathBuf,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let parts: Vec<_> = form
-        .filter_map(|part| async move {
-            match part {
-                warp::multipart::Part::File(file) => Some(file),
-                _ => None,
-            }
-        })
-        .collect()
-        .await;
+    let mut parts = Vec::new();
+    while let Some(part) = form.next().await {
+        parts.push(part.map_err(|e| warp::reject::custom(CustomError(e.to_string())))?);
+    }
 
     let mut uploaded_files = Vec::new();
 
@@ -80,7 +83,7 @@ async fn handle_upload(
         let filename = part.filename().unwrap_or("unknown").to_string();
         let sanitized: String = filename
             .chars()
-            .filter(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
+            .filter(|&c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
             .collect();
         
         let mut filepath = upload_dir.join(&sanitized);
@@ -106,21 +109,22 @@ async fn handle_upload(
 
         let mut file = tokio::fs::File::create(&filepath)
             .await
-            .map_err(|e| warp::reject::custom(e))?;
+            .map_err(|e| warp::reject::custom(CustomError(e.to_string())))?;
         let mut stream = part.stream();
         let mut bytes_written = 0usize;
         
-        while let Some(chunk) = stream.next().await {
-            let chunk = chunk.map_err(|e| warp::reject::custom(e))?;
-            file.write_all(&chunk)
+        while let Some(chunk_result) = stream.next().await {
+            let chunk = chunk_result.map_err(|e| warp::reject::custom(CustomError(e.to_string())))?;
+            let chunk_bytes = chunk.chunk();
+            file.write_all(chunk_bytes)
                 .await
-                .map_err(|e| warp::reject::custom(e))?;
-            bytes_written += chunk.len();
+                .map_err(|e| warp::reject::custom(CustomError(e.to_string())))?;
+            bytes_written += chunk_bytes.len();
         }
 
         file.flush()
             .await
-            .map_err(|e| warp::reject::custom(e))?;
+            .map_err(|e| warp::reject::custom(CustomError(e.to_string())))?;
         uploaded_files.push(sanitized);
         server::RECEIVED_COUNT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         server::TOTAL_SIZE.fetch_add(bytes_written, std::sync::atomic::Ordering::SeqCst);
@@ -134,7 +138,7 @@ async fn handle_upload(
 }
 
 #[tauri::command]
-async fn stop_server(state: State<ServerState>) -> Result<(), String> {
+async fn stop_server(state: State<'_, ServerState>) -> Result<(), String> {
     let mut guard = state.0.lock().unwrap();
     if let Some(handle) = guard.take() {
         handle.abort();

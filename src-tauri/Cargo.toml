@@ -23,3 +23,17 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
+warp = "0.3"
+qrcode = "0.12"
+dirs = "5"
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+tokio-stream = "0.1"
+mime = "0.3"
+uuid = { version = "1", features = ["v4"] }
+get_if_addrs = "0.5"
+image = "0.25"
+png = "0.17"
+base64 = "0.22"
+rand = "0.8"
+

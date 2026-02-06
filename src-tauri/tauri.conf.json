@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-local-send",
-        "width": 800,
-        "height": 600
+        "title": "局域网文件传输",
+        "width": 500,
+        "height": 700,
+        "resizable": false,
+        "decorations": true
       }
     ],
     "security": {

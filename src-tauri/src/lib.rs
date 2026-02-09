@@ -35,8 +35,11 @@ async fn start_server(state: State<'_, ServerState>) -> Result<serde_json::Value
     let qr_data_url = qrcode::qr_to_data_url(&access_url)
         .map_err(|e| format!("生成二维码失败: {}", e))?;
 
+    let html_template = server::get_html_template().await
+        .map_err(|e| format!("无法读取模板文件: {}", e))?;
+    
     let routes = warp::path::end()
-        .map(|| warp::reply::html(server::get_html_template()));
+        .map(move || warp::reply::html(html_template.clone()));
 
     let upload_dir_clone = upload_dir.clone();
     let upload_route = warp::path("upload")

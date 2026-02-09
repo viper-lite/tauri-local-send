@@ -75,14 +75,10 @@ async fn handle_upload(
     mut form: warp::multipart::FormData,
     upload_dir: std::path::PathBuf,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut parts = Vec::new();
-    while let Some(part) = form.next().await {
-        parts.push(part.map_err(|e| warp::reject::custom(CustomError(e.to_string())))?);
-    }
-
     let mut uploaded_files = Vec::new();
 
-    for part in parts {
+    while let Some(part_result) = form.next().await {
+        let part = part_result.map_err(|e| warp::reject::custom(CustomError(e.to_string())))?;
         let filename = part.filename().unwrap_or("unknown").to_string();
         let sanitized: String = filename
             .chars()

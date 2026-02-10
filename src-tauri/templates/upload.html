@@ -4,148 +4,480 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>上传文件 - LocalSend</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 60px 20px;
+            color: #0f172a;
         }
+
         .container {
             background: white;
-            border-radius: 16px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 48px 40px;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 480px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
         }
-        h1 { color: #333; font-size: 24px; text-align: center; margin-bottom: 10px; }
-        .subtitle { color: #666; font-size: 14px; text-align: center; margin-bottom: 24px; }
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 12px;
-            padding: 30px 20px;
+
+        .header {
             text-align: center;
-            margin-bottom: 20px;
-            background: #f8f9ff;
+            margin-bottom: 36px;
+        }
+
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .header-icon svg {
+            width: 28px;
+            height: 28px;
+            color: #0369a1;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 48px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            background: #f8fafc;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .upload-area:hover { border-color: #764ba2; background: #f0f2ff; }
-        .upload-area.dragover { border-color: #764ba2; background: #e8ebff; }
-        .icon { font-size: 48px; margin-bottom: 10px; }
-        .upload-text { color: #667eea; font-size: 16px; font-weight: 500; }
-        .file-info { color: #666; font-size: 14px; margin-top: 10px; word-break: break-all; }
-        .btn {
-            transition: transform 0.2s, box-shadow 0.2s;
+
+        .upload-area:hover {
+            border-color: #0369a1;
+            background: #f0f9ff;
         }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+
+        .upload-area.dragover {
+            border-color: #0369a1;
+            background: #f0f9ff;
         }
-        .btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            transition: all 0.2s ease;
+        }
+
+        .upload-area:hover .upload-icon {
+            background: #e0f2fe;
+        }
+
+        .upload-icon svg {
+            width: 28px;
+            height: 28px;
+            color: #64748b;
+        }
+
+        .upload-area:hover .upload-icon svg {
+            color: #0369a1;
+        }
+
+        .upload-text {
+            color: #334155;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
+            margin-bottom: 8px;
         }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .progress-container { margin: 20px 0; display: none; }
-        .progress-container.show { display: block; }
-        .progress-bar { height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.3s; }
-        .progress-text { text-align: center; margin-top: 8px; color: #666; font-size: 14px; }
-        .status { text-align: center; margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 14px; display: none; }
-        .status.success { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-        input[type="file"] { display: none; }
+
+        .upload-hint {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .file-info {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 12px;
+            word-break: break-all;
+            font-weight: 500;
+        }
+
+        .file-list {
+            margin: 16px 0;
+            text-align: left;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .file-item svg {
+            width: 20px;
+            height: 20px;
+            color: #64748b;
+            flex-shrink: 0;
+        }
+
+        .file-item span {
+            flex: 1;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .file-item .remove-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #94a3b8;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .file-item .remove-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: #0369a1;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .progress-container {
+            margin: 24px 0;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-label {
+            color: #334155;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .progress-percent {
+            color: #0369a1;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0369a1, #0ea5e9);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 24px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status.success svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status.error svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 24px 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📁 上传文件</h1>
-        <p class="subtitle">将文件发送到这台电脑</p>
+        <div class="header">
+            <div class="header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h1>上传文件</h1>
+            <p class="subtitle">将文件发送到这台电脑</p>
+        </div>
+
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-            <div class="icon">📤</div>
+            <div class="upload-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
             <div class="upload-text">点击选择文件</div>
-            <div class="file-info" id="fileInfo">支持多个文件</div>
+            <div class="upload-hint" id="uploadHint">或拖拽文件到此处</div>
+            <div class="file-info" id="fileInfo"></div>
+            <div class="file-list" id="fileList"></div>
         </div>
+
         <input type="file" id="fileInput" multiple>
-        <button class="btn" id="uploadBtn" onclick="uploadFiles()" disabled>开始上传</button>
+
+        <button class="btn" id="uploadBtn" onclick="uploadFiles()" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            开始上传
+        </button>
+
         <div class="progress-container" id="progressContainer">
-            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
-            <div class="progress-text" id="progressText">0%</div>
+            <div class="progress-header">
+                <span class="progress-label">上传进度</span>
+                <span class="progress-percent" id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
         </div>
+
         <div class="status" id="status"></div>
     </div>
+
     <script>
         let selectedFiles = [];
+
+        const uploadIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
+
         document.getElementById('fileInput').addEventListener('change', function(e) {
             selectedFiles = Array.from(e.target.files);
             updateFileInfo();
         });
-        
+
         const uploadArea = document.getElementById('uploadArea');
-        
+
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             uploadArea.addEventListener(eventName, preventDefaults, false);
         });
-        
+
         function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
+
         ['dragenter', 'dragover'].forEach(eventName => {
             uploadArea.addEventListener(eventName, () => {
                 uploadArea.classList.add('dragover');
             });
         });
-        
+
         ['dragleave', 'drop'].forEach(eventName => {
             uploadArea.addEventListener(eventName, () => {
                 uploadArea.classList.remove('dragover');
             });
         });
-        
+
         uploadArea.addEventListener('drop', function(e) {
             const files = e.dataTransfer.files;
             selectedFiles = Array.from(files);
             updateFileInfo();
         });
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+        }
+
         function updateFileInfo() {
             const fileInfo = document.getElementById('fileInfo');
+            const uploadHint = document.getElementById('uploadHint');
+            const fileList = document.getElementById('fileList');
             const uploadBtn = document.getElementById('uploadBtn');
+
             if (selectedFiles.length === 0) {
-                fileInfo.textContent = '支持多个文件';
+                fileInfo.textContent = '';
+                uploadHint.style.display = 'block';
+                fileList.innerHTML = '';
                 uploadBtn.disabled = true;
                 return;
             }
+
+            uploadHint.style.display = 'none';
             const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
-            const sizeStr = totalSize < 1024*1024 ? (totalSize/1024).toFixed(1)+' KB' : (totalSize/(1024*1024)).toFixed(1)+' MB';
-            fileInfo.textContent = selectedFiles.length + ' 个文件 (' + sizeStr + ')';
+            fileInfo.textContent = selectedFiles.length + ' 个文件，共 ' + formatSize(totalSize);
+
+            fileList.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-item">
+                    ${uploadIcon}
+                    <span>${file.name}</span>
+                    <button class="remove-btn" onclick="removeFile(${index})">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
             uploadBtn.disabled = false;
         }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileInfo();
+        }
+
         async function uploadFiles() {
             if (selectedFiles.length === 0) return;
+
             const uploadBtn = document.getElementById('uploadBtn');
             const progressContainer = document.getElementById('progressContainer');
             const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
             const status = document.getElementById('status');
+
             uploadBtn.disabled = true;
+            uploadBtn.innerHTML = `
+                <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 0.8s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke-opacity="0.3"></circle>
+                    <path d="M12 2a10 10 0 0 1 10 10"></path>
+                </svg>
+                上传中...
+            `;
+
             progressContainer.classList.add('show');
             status.style.display = 'none';
+
+            const style = document.createElement('style');
+            style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+
             const formData = new FormData();
             selectedFiles.forEach(file => formData.append('files', file));
+
             try {
                 await new Promise((resolve, reject) => {
                     const xhr = new XMLHttpRequest();
@@ -153,7 +485,7 @@
                         if (e.lengthComputable) {
                             const percent = Math.round((e.loaded / e.total) * 100);
                             progressFill.style.width = percent + '%';
-                            progressText.textContent = percent + '%';
+                            progressPercent.textContent = percent + '%';
                         }
                     });
                     xhr.addEventListener('load', function() {
@@ -172,19 +504,40 @@
                     xhr.open('POST', '/upload');
                     xhr.send(formData);
                 });
-                status.textContent = '✓ 上传成功';
+
+                status.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    上传成功
+                `;
                 status.className = 'status success';
-                status.style.display = 'block';
+                status.style.display = 'flex';
                 selectedFiles = [];
                 updateFileInfo();
                 setTimeout(() => progressContainer.classList.remove('show'), 2000);
             } catch (error) {
                 progressFill.style.width = '0%';
-                progressText.textContent = '0%';
-                status.textContent = '✗ ' + error.message;
+                progressPercent.textContent = '0%';
+                status.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    ${error.message}
+                `;
                 status.className = 'status error';
-                status.style.display = 'block';
+                status.style.display = 'flex';
                 uploadBtn.disabled = false;
+                uploadBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                    开始上传
+                `;
             }
         }
     </script>

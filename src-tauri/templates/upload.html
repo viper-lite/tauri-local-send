@@ -476,18 +476,34 @@
             document.head.appendChild(style);
 
             const formData = new FormData();
+            const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+            let uploadedBytes = 0;
             selectedFiles.forEach(file => formData.append('files', file));
+
+            function updateProgress(loaded) {
+                const percent = Math.min(99, Math.round((loaded / totalSize) * 100));
+                progressFill.style.width = percent + '%';
+                progressPercent.textContent = percent + '%';
+            }
 
             try {
                 await new Promise((resolve, reject) => {
                     const xhr = new XMLHttpRequest();
+
                     xhr.upload.addEventListener('progress', function(e) {
                         if (e.lengthComputable) {
-                            const percent = Math.round((e.loaded / e.total) * 100);
-                            progressFill.style.width = percent + '%';
-                            progressPercent.textContent = percent + '%';
+                            updateProgress(e.loaded);
                         }
                     });
+
+                    xhr.upload.addEventListener('loadstart', function() {
+                        updateProgress(0);
+                    });
+
+                    xhr.upload.addEventListener('load', function() {
+                        updateProgress(totalSize);
+                    });
+
                     xhr.addEventListener('load', function() {
                         if (xhr.status === 200) {
                             resolve(xhr.response);

@@ -53,10 +53,26 @@ const PlayIcon = () => (
   </svg>
 );
 
+const CheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
+const XIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
 function App() {
   const [serverInfo, setServerInfo] = useState<ServerInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [fileStatus, setFileStatus] = useState<FileStatus | null>(null);
+
+  const [showNotification, setShowNotification] = useState(false);
+  const [lastFileName, setLastFileName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -99,6 +115,19 @@ function App() {
   const fetchFileStatus = async () => {
     try {
       const status = await invoke<FileStatus>("get_server_status");
+      
+      // Check if new files were received
+      if (fileStatus && status.received_count > fileStatus.received_count) {
+        const newFilesCount = status.received_count - fileStatus.received_count;
+        setLastFileName(newFilesCount === 1 ? "1个新文件" : `${newFilesCount}个新文件`);
+        setShowNotification(true);
+        
+        // Auto hide notification after 3 seconds
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 3000);
+      }
+      
       setFileStatus(status);
     } catch (e) {
       console.error("Failed to fetch status:", e);
@@ -122,6 +151,23 @@ function App() {
         <h1>LocalSend</h1>
         <p className="subtitle">扫码即可上传文件到这台电脑</p>
       </header>
+
+      {showNotification && (
+        <div className="notification-popup" onClick={() => setShowNotification(false)}>
+          <div className="notification-content">
+            <div className="notification-icon">
+              <CheckIcon />
+            </div>
+            <div className="notification-text">
+              <h4>接收成功</h4>
+              <p>{lastFileName}已保存</p>
+            </div>
+            <button className="notification-close" onClick={() => setShowNotification(false)}>
+              <XIcon />
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="error-message">

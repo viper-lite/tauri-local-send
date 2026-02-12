@@ -361,3 +361,115 @@ body {
   width: 20px;
   height: 20px;
 }
+
+/* Notification Popup */
+.notification-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.notification-content {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease;
+  cursor: default;
+  min-width: 320px;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-icon svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-text h4 {
+  color: #164e63;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.notification-text p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.notification-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(8, 145, 178, 0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  background: rgba(8, 145, 178, 0.15);
+}
+
+.notification-close svg {
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+.notification-close:hover svg {
+  color: #164e63;
+}
